@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FVE Daily Production</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
+</head>
+<body>
+  <h1>FVE Daily Production</h1>
+  <p>Hodnota: <span id="value">Načítání...</span></p>
+
+  <script>
+    // Nastavení připojení k MQTT brokeru
+    const broker = "wss://46.173.204.122:8883"; // Adresa brokeru s TLS (WSS pro WebSockets)
+    const options = {
+      username: "mqtt-user",
+      password: "MQTT123*",
+      reconnectPeriod: 1000 // Auto-reconnect každou sekundu
+    };
+
+    // Připojení k brokeru
+    const client = mqtt.connect(broker, options);
+
+    client.on("connect", () => {
+      console.log("Connected to MQTT broker!");
+      client.subscribe("MRLAK-L/homeassistant/fve/daily_production"); // Téma k odběru
+    });
+
+    client.on("message", (topic, message) => {
+      console.log(`Message received on ${topic}: ${message}`);
+      document.getElementById("value").innerText = message.toString();
+    });
+
+    client.on("error", (err) => {
+      console.error("Connection error: ", err);
+      document.getElementById("value").innerText = "Chyba připojení!";
+    });
+  </script>
+</body>
+</html>
